@@ -62,4 +62,12 @@ db.each(`CREATE TABLE IF NOT EXISTS items(
       console.log(row);
     });  
 });
+
+// close the database connection
+db.close((err) => {
+  if (err) {
+    return console.error(err.message);
+  }
+  console.log('Close the database connection.');
+});
     */
