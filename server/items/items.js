@@ -1,33 +1,16 @@
-var express = require('express')
-var router = express.Router()
+const express = require('express')
+const router = express.Router()
 const sqlite3 = require('sqlite3').verbose();
-
-router.use(function timeLog (req, res, next) {
-  console.log('Time: ', Date.now())
-  next()
-})
 
 let db = new sqlite3.Database('./database/store.db', (err) => {
   if (err) {
     return console.error(err.message);
   }
-  console.log('Connected to the in-memory SQlite database.');
+  console.log('Connected to db in items.');
 });
 
-router.get('/', function (req, res) {
-  res.send('Items');
-  console.log('Items');
-})
-
-router.get('/about', function (req, res) {
-  res.send('About birds')
-})
-
-module.exports = router
-
-/*
-db.serialize(() => {
-db.each(`CREATE TABLE IF NOT EXISTS items(
+db.serialize(function () {
+  db.run(`CREATE TABLE IF NOT EXISTS items(
     item_id integer PRIMARY KEY,
     Item_manufacture_id integer NOT NULL,
     item_name text NOT NULL,
@@ -35,25 +18,30 @@ db.each(`CREATE TABLE IF NOT EXISTS items(
       if (err) {
         console.error(err.message);
       }
-      console.log(row);
     });
-
-    db.each(`SELECT * FROM items`, (err, row) => {
-      if (err) {
-        console.error(err.message);
-      }
-      console.log(row);
-    });
-
-  db.each(`SELECT * FROM items`, (err, row) => {
-      if (err) {
-        console.error(err.message);
-      }
-      console.log(row);
-    });  
 });
 
-// close the database connection
+router.post('/', function (req, res) {
+  let stmt = db.prepare("INSERT INTO items(Item_manufacture_id, item_name, item_dis) VALUES(?, ?, ?)");
+  
+    for (var i = 0; i < 10; i++) {
+      stmt.run(654, "Chacho", "It's Chocolate");
+    }
+    stmt.finalize();
+})
+
+router.get('/', function (req, res) {
+    db.all(`SELECT * FROM items`, (err, row) => {
+      if (err) {
+        res.status(500).send(error);
+      };
+      res.status(200).json(row);
+    });
+});
+
+module.exports = router
+
+/*
 db.close((err) => {
   if (err) {
     return console.error(err.message);
